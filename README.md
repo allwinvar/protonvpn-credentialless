@@ -11,7 +11,7 @@ There's no need to manually create a ProtonVPN account — the script leverages 
 ./generate.sh [options]
 
 # Connect to ProtonVPN
-sudo openvpn --config proton.ovpn
+sudo openvpn --config proton.ovpn --redirect-gateway def1
 
 # Check your ip address
 curl ipinfo.io
