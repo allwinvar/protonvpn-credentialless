@@ -8,15 +8,18 @@ There's no need to manually create a ProtonVPN account — the script leverages 
 
 ```bash
 # Generate new conf and credentials
-./generate.sh [options]
+./connect.sh generate
 
 # Connect to ProtonVPN
-sudo openvpn --config proton.ovpn --redirect-gateway def1
+./connect.sh connect
 
-# Check your ip address
-curl ipinfo.io
+# Create a strict killswitch
+./connect.sh ks
+
+# For oneclick privacy
+./connect.sh ks g c
 ```
-
+# ./generate.sh -options (not needed for most users)
 | Options           | Description                                                                                                    |
 | ----------------- | -------------------------------------------------------------------------------------------------------------- |
 | `-v`              | Verbose mode.                                                                                                  |
@@ -24,6 +27,3 @@ curl ipinfo.io
 | `--no-ipv6`       | Explicitly disables IPv6 in the generated OpenVPN configuration. Required if IPv6 is disabled on your host.    |
 | `--no-dns-leak`   | Add up/down scripts to avoid using your ISP's DNS servers (DNS queries go through the tunnel anyway).          |
 
-## Donate
-
-[Bank transfer, Bitcoin, Paypal](https://proton.me/foundation#donate)
