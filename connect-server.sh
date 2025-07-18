@@ -25,9 +25,11 @@ random(){
 	echo "Allowing outgoing $proto to $server port $port"
 	sudo ufw allow out to "$server_address" port "$server_port" proto "$proto"
 	
+	echo "executed sudo openvpn --config \"$CONFIG_FILE\" --remote \"$server_address\" \"$server_port\" --redirect-gateway def1"
+	#echo 'ufw allow out to "$server_address" port "$server_port" proto "$proto"'
 	
 	# Start the OpenVPN client with the selected server
-	sudo openvpn --config "$CONFIG_FILE" --remote "$server_address" "$server_port" --redirect-gateway def1
+	sudo openvpn --config "$CONFIG_FILE" --remote "$server_address" "$server_port" --redirect-gateway def1 --verb 4
 	echo "executed sudo openvpn --config "$CONFIG_FILE" --remote "$server_address" "$server_port" --redirect-gateway def1"
 }
 #choose a server from the remote list
