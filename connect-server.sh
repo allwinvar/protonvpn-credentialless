@@ -4,7 +4,7 @@
 #connect to random server
 random(){
 
-	sudo openvpn --config proton.ovpn  --redirect-gateway def1  2>&1 | tee /tmp/openvpn-log.txt &
+	sudo openvpn --config proton.ovpn  --redirect-gateway def1 --script-security 2 --up ./update-resolv-conf --down ./update-resolv-conf 2>&1 | tee /tmp/openvpn-log.txt &
 	# Give OpenVPN a few seconds to start and log the target
 	sleep 3
 	REMOTE_LINE=$(grep -m1 'Preserving recently used remote address' /tmp/openvpn-log.txt)
