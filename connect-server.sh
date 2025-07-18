@@ -6,6 +6,30 @@ CONFIG_FILE="proton.ovpn"
 
 #connect to random server
 random(){
+<<<<<<< Updated upstream
+=======
+
+	
+	# Since server is IP, no need to resolve
+	#echo "Allowing outgoing $proto to $server port $port"
+	#sudo ufw allow out to "$server_address" port "$server_port" proto "$proto"
+	
+	
+	# Start the OpenVPN client with the selected server
+	#sudo openvpn --config "$CONFIG_FILE" --remote "$server_address" "$server_port" --redirect-gateway def1
+	#echo "executed sudo openvpn --config "$CONFIG_FILE" --remote "$server_address" "$server_port" --redirect-gateway def1"
+	sudo openvpn --config proton.ovpn  --redirect-gateway def1  2>&1 | tee /tmp/openvpn-log.txt &
+	# Give OpenVPN a few seconds to start and log the target
+	sleep 3
+	REMOTE_LINE=$(grep -m1 'Preserving recently used remote address' /tmp/openvpn-log.txt)
+	SERVER_IP=$(echo "$REMOTE_LINE" | sed 's/.*AF_INET]\([0-9.]*\):\([0-9]*\).*/\1/')
+	PORT=$(echo "$REMOTE_LINE" | sed 's/.*AF_INET][0-9.]*:\([0-9]*\).*/\1/')
+	PROTO=$(grep -m1 'TCP' /tmp/openvpn-log.txt && echo tcp || echo udp)
+	#sudo ufw allow out to "$SERVER_IP" port "$PORT" proto "$PROTO"
+	sudo ufw allow out to "$SERVER_IP" port "$PORT" proto tcp
+	echo "server ip $SERVER_IP port $PORT proto $PROTO"
+	#print("server ip " + $SERVER_IP + "port" + "$PORT" + "proto" + $PROTO)
+>>>>>>> Stashed changes
 	
 	
 	# Extract the list of remote directives
