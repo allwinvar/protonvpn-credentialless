@@ -6,9 +6,9 @@ There's no need to manually create a ProtonVPN account — the script leverages 
 
 ## Pre-requisites
 
-- **curl**: Used for making HTTP(S) requests. Install with:  ```bash sudo apt install curl ```
-- **OpenVPN**: Required to create and manage the VPN tunnel. Install with: ```bash sudo apt install openvpn ```
-- **UFW (Uncomplicated Firewall)**: Used to configure firewall rules and allow VPN traffic. Install with: ```bash sudo apt install ufw ```
+- **curl**: Used for making HTTP(S) requests. Install with:  ``` sudo apt install curl ```
+- **OpenVPN**: Required to create and manage the VPN tunnel. Install with: ``` sudo apt install openvpn ```
+- **UFW (Uncomplicated Firewall)**: Used to configure firewall rules and allow VPN traffic. Install with: ``` sudo apt install ufw ```
 
 ## Usage
 
