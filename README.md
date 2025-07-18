@@ -4,6 +4,12 @@ Simple script that generates an OpenVPN configuration file for use with [ProtonV
 
 There's no need to manually create a ProtonVPN account — the script leverages Proton's `/credentialless` API to automatically generate a new one each time it runs.
 
+## Pre-req
+
+- **curl**: Used for making HTTP(S) requests, testing network connectivity.
+- **OpenVPN**: Required to create and manage the VPN tunnel.
+- **UFW (Uncomplicated Firewall)**: Used to configure firewall rules and allow VPN traffic.
+
 ## Usage
 
 ```bash
