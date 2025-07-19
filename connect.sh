@@ -2,8 +2,7 @@
 
 source ./connect-server.sh
 
-sudo ufw allow from 185.159.159.148 to any port 443 proto tcp
-sudo ufw allow out to 185.159.159.148 port 443 proto tcp
+
 
 
 
