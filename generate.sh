@@ -16,7 +16,7 @@ elif [[ "$ARGS" = *" -vvv "* ]]; then
 fi
 
 OVPN_CONF=proton.ovpn
-app_version="5.11.70.0"
+app_version="5.12.80.0"
 device_name=$(shuf -i 111111111111-999999999999 -n 1)
 
 # Check requirements
@@ -44,7 +44,18 @@ session_id=$(grep <cookie.jar "Session-Id" | awk '{print $7}')
 
 # Get credentialless access token
 # shellcheck disable=SC2086
-credentialless=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -X "POST" -H "X-Pm-Appversion: android-vpn@$app_version+play" -H "X-Pm-Locale: en" -H "User-Agent: ProtonVPN/$app_version (Android 15; google sdk_gphone64_x86_64)" -H "Accept: application/vnd.protonmail.v1+json" -H "X-Pm-Uid: $x_pm_uid" -H "Authorization: Bearer $access_token" -H "Content-Type: application/json; charset=utf-8" -b "Session-Id=$session_id; Tag=vpn-b" -d '{"Payload":{"vpn-android-v4-challenge-0":{"type":"me.proton.core.challenge.data.frame.ChallengeFrame.Device","v":"2.0.7","appLang":"en","timezone":"Europe/Monaco","deviceName":'"$device_name"',"regionCode":"US","timezoneOffset":-120,"isJailbreak":false,"preferredContentSize":"1.0","storageCapacity":16.0,"isDarkmodeOn":true,"keyboards":["com.google.android.inputmethod.latin","com.google.android.tts"]}}}' "https://vpn-api.proton.me/auth/v4/credentialless")
+credentialless=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -X "POST" -H "X-Pm-Appversion: android-vpn@$app_version+play" -H "X-Pm-Locale: en" -H "User-Agent: ProtonVPN/$app_version (Android 15; google sdk_gphone64_x86_64)" -H "Accept: application/vnd.protonmail.v1+json" -H "X-Pm-Uid: $x_pm_uid" -H "Authorization: Bearer $access_token" -H "Content-Type: application/json; charset=utf-8" -b "Session-Id=$session_id; Tag=vpn-b" -d '{"Payload":{"vpn-android-v4-challenge-0":{"type":"me.proton.core.challenge.data.frame.ChallengeFrame.Device",
+	"v":"2.0.7",
+	"appLang":"en",
+	"timezone":"Europe/Monaco",
+	"deviceName":'"$device_name"',
+	"regionCode":"US",
+	"timezoneOffset":-120,
+	"isJailbreak":false,
+	"preferredContentSize":"1.0",
+	"storageCapacity":16.0,
+	"isDarkmodeOn":true,
+	"keyboards":["com.google.android.inputmethod.latin","com.google.android.tts"]}}}' "https://vpn-api.proton.me/auth/v4/credentialless")
 
 access_token=$(echo "$credentialless" | jq -r '.AccessToken')
 
