@@ -16,7 +16,7 @@ elif [[ "$ARGS" = *" -vvv "* ]]; then
 fi
 
 OVPN_CONF=proton.ovpn
-app_version="5.12.80.0"
+app_version="5.13.22.0"
 device_name=$(shuf -i 111111111111-999999999999 -n 1)
 
 # Check requirements
