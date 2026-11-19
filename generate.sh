@@ -37,15 +37,15 @@ echo "Please wait..."
 # Get new session
 rm -f cookie.jar
 # shellcheck disable=SC2086
-session=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -X "POST" --cookie-jar cookie.jar \
-  -H "X-Pm-Appversion: android-vpn@$app_version+play" \
+session=$(curl -v -X POST \
+  -H "X-Pm-Appversion: android-vpn@5.21.57.0+play" \
   -H "X-Pm-Locale: en" \
   -H "x-pm-apiversion: 4" \
-  -H "User-Agent: ProtonVPN/$app_version (Android 15; $device_model)" \
+  -H "User-Agent: ProtonVPN/5.21.57.0 (Android 15; Pixel 6 Pro Build/TQ3A.230505.006)" \
   -H "Accept: application/vnd.protonmail.v1+json" \
   -H "Content-Type: application/json; charset=utf-8" \
-  -d '{"Payload":{"vpn-android-v4-challenge-0":{"v":"2.0.7","appLang":"en","timezone":"Europe/Monaco","deviceName":"'$device_name'","regionCode":"US","timezoneOffset":-120,"isJailbreak":false,"preferredContentSize":"1.0","storageCapacity":16.0,"isDarkmodeOn":false,"keyboards":["com.google.android.inputmethod.latin","com.google.android.tts"]}}}' \
-  "https://account.proton.me/api/auth/v4/sessions")   
+  -d '{"Payload":{"vpn-android-v4-challenge-0":{"v":"2.0.7","appLang":"en","timezone":"Europe/Monaco","deviceName":"123456789012","regionCode":"US","timezoneOffset":-120,"isJailbreak":false,"preferredContentSize":"1.0","storageCapacity":16.0,"isDarkmodeOn":false,"keyboards":["com.google.android.inputmethod.latin","com.google.android.tts"]}}}' \
+  "https://account.proton.me/api/auth/v4/sessions"   )   
 x_pm_uid=$(echo "$session" | jq -r '.UID')
 access_token=$(echo "$session" | jq -r '.AccessToken')
 session_id=$(grep <cookie.jar "Session-Id" | awk '{print $7}')
