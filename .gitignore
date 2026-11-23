@@ -1,3 +1,4 @@
 cookie.jar
 *.json
 proton.ovpn
+*.conf
