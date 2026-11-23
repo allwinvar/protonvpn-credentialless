@@ -37,39 +37,52 @@ echo "Please wait..."
 # Get new session
 rm -f cookie.jar
 # shellcheck disable=SC2086
-session=$(curl -v -X POST \
-  -H "X-Pm-Appversion: android-vpn@5.21.57.0+play" \
+session=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} \
+  --cookie-jar cookie.jar \
+  -X POST \
+  -H "X-Pm-Appversion: android-vpn@${app_version}+play" \
   -H "X-Pm-Locale: en" \
   -H "x-pm-apiversion: 4" \
-  -H "User-Agent: ProtonVPN/5.21.57.0 (Android 15; Pixel 6 Pro Build/TQ3A.230505.006)" \
+  -H "User-Agent: ProtonVPN/${app_version} (Android 15; ${device_model})" \
   -H "Accept: application/vnd.protonmail.v1+json" \
   -H "Content-Type: application/json; charset=utf-8" \
-  -d '{"Payload":{"vpn-android-v4-challenge-0":{"v":"2.0.7","appLang":"en","timezone":"Europe/Monaco","deviceName":"123456789012","regionCode":"US","timezoneOffset":-120,"isJailbreak":false,"preferredContentSize":"1.0","storageCapacity":16.0,"isDarkmodeOn":false,"keyboards":["com.google.android.inputmethod.latin","com.google.android.tts"]}}}' \
-  "https://account.proton.me/api/auth/v4/sessions"   )   
+  -d '{"Payload":{"vpn-android-v4-challenge-0":{"v":"2.0.7","appLang":"en","timezone":"America/New_York","deviceName":"'"$device_name"'","regionCode":"US","timezoneOffset":240,"isJailbreak":false,"preferredContentSize":"1.0","storageCapacity":128.0,"isDarkmodeOn":false,"keyboards":["com.google.android.inputmethod.latin"]}}}' \
+  "https://account.proton.me/api/auth/v4/sessions")
+
 x_pm_uid=$(echo "$session" | jq -r '.UID')
 access_token=$(echo "$session" | jq -r '.AccessToken')
-session_id=$(grep <cookie.jar "Session-Id" | awk '{print $7}')
+session_id=$(grep "Session-Id" cookie.jar | awk '{print $7}')
 
 # Get credentialless access token
 # shellcheck disable=SC2086
 credentialless=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -X "POST" \
-  -H "X-Pm-Appversion: android-vpn@$app_version+play" \
+  -H "X-Pm-Appversion: android-vpn@${app_version}+play" \
   -H "X-Pm-Locale: en" \
   -H "x-pm-apiversion: 4" \
-  -H "User-Agent: ProtonVPN/$app_version (Android 15; $device_model)" \
+  -H "User-Agent: ProtonVPN/${app_version} (Android 15; ${device_model})" \
   -H "Accept: application/vnd.protonmail.v1+json" \
   -H "X-Pm-Uid: $x_pm_uid" \
   -H "Authorization: Bearer $access_token" \
   -H "Content-Type: application/json; charset=utf-8" \
   -b "Session-Id=$session_id; Tag=vpn-b" \
-  -d '{"Payload":{"vpn-android-v4-challenge-0":{"type":"me.proton.core.challenge.data.frame.ChallengeFrame.Device","v":"2.0.7","appLang":"en","timezone":"Europe/Monaco","deviceName":"'$device_name'","regionCode":"US","timezoneOffset":-120,"isJailbreak":false,"preferredContentSize":"1.0","storageCapacity":16.0,"isDarkmodeOn":true,"keyboards":["com.google.android.inputmethod.latin","com.google.android.tts"]}}}' \
-  "https://account.proton.me/api/auth/v4/credentialless")   
+  -d '{"Payload":{"vpn-android-v4-challenge-0":{"type":"me.proton.core.challenge.data.frame.ChallengeFrame.Device","v":"2.0.7","appLang":"en","timezone":"America/New_York","deviceName":"'"$device_name"'","regionCode":"US","timezoneOffset":240,"isJailbreak":false,"preferredContentSize":"1.0","storageCapacity":128.0,"isDarkmodeOn":false,"keyboards":["com.google.android.inputmethod.latin"]}}}' \
+  "https://account.proton.me/api/auth/v4/credentialless")
 
 access_token=$(echo "$credentialless" | jq -r '.AccessToken')
 
 # Get VPN credentials
 # shellcheck disable=SC2086
-vpn_credential=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "x-pm-apiversion: 4" \ -X "GET" -H "X-Pm-Appversion: android-vpn@$app_version+play" -H "X-Pm-Locale: en" -H "User-Agent: ProtonVPN/$app_version (Android 15; $device_model)" -H "Accept: application/vnd.protonmail.v1+json" -H "X-Pm-Uid: $x_pm_uid" -H "Authorization: Bearer $access_token" -b "Session-Id=$session_id; Tag=vpn-b" "https://account.proton.me/api/vpn/v2")
+vpn_credential=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 \
+  -X "GET" \
+  -H "X-Pm-Appversion: android-vpn@${app_version}+play" \
+  -H "X-Pm-Locale: en" \
+  -H "x-pm-apiversion: 4" \
+  -H "User-Agent: ProtonVPN/${app_version} (Android 15; ${device_model})" \
+  -H "Accept: application/vnd.protonmail.v1+json" \
+  -H "X-Pm-Uid: $x_pm_uid" \
+  -H "Authorization: Bearer $access_token" \
+  -b "Session-Id=$session_id; Tag=vpn-b" \
+  "https://account.proton.me/api/vpn/v2")
 
 vpn_name=$(echo "$vpn_credential" | jq -r '.VPN.Name')
 vpn_password=$(echo "$vpn_credential" | jq -r '.VPN.Password')
@@ -112,7 +125,20 @@ fi
 
 # Get the VPN IP list, and add them to openvpn conf
 # shellcheck disable=SC2086
-logical_servers=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "x-pm-apiversion: 4" \ -X "GET" -H "X-Pm-Country: US" -H "If-Modified-Since: Thu, 01 Jan 1970 00:00:00 GMT" -H "X-Pm-Appversion: android-vpn@$app_version+play" -H "X-Pm-Locale: en" -H "User-Agent: ProtonVPN/$app_version (Android 15; $device_model)" -H "Accept: application/vnd.protonmail.v1+json" -H "X-Pm-Uid: $x_pm_uid" -H "Authorization: Bearer $access_token" -b "Session-Id=$session_id; Tag=vpn-b" "https://account.proton.me/api/vpn/v1/logicals?WithTranslations=en&WithEntriesForProtocols=WireGuardUDP%2CWireGuardTCP%2COpenVPNUDP%2COpenVPNTCP%2CWireGuardTLS&WithState=true" | jq -r '.LogicalServers | map(select(.Tier == 0))')
+logical_servers=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 \
+  -X "GET" \
+  -H "X-Pm-Country: US" \
+  -H "If-Modified-Since: Thu, 01 Jan 1970 00:00:00 GMT" \
+  -H "X-Pm-Appversion: android-vpn@${app_version}+play" \
+  -H "X-Pm-Locale: en" \
+  -H "x-pm-apiversion: 4" \
+  -H "User-Agent: ProtonVPN/${app_version} (Android 15; ${device_model})" \
+  -H "Accept: application/vnd.protonmail.v1+json" \
+  -H "X-Pm-Uid: $x_pm_uid" \
+  -H "Authorization: Bearer $access_token" \
+  -b "Session-Id=$session_id; Tag=vpn-b" \
+  "https://account.proton.me/api/vpn/v1/logicals?WithTranslations=en&WithEntriesForProtocols=OpenVPNUDP%2COpenVPNTCP&WithState=true" \
+  | jq -r '.LogicalServers | map(select(.Tier == 0))')
 
 for logical_server_b64 in $(echo "$logical_servers" | jq -r '.[] | @base64'); do
     logical_server=$(echo "$logical_server_b64" | base64 -d)
@@ -124,4 +150,4 @@ for logical_server_b64 in $(echo "$logical_servers" | jq -r '.[] | @base64'); do
 done
 
 echo "OpenVPN conf was created with success !"
-echo -e "\e[36m$ sudo openvpn --config $OVPN_CONF\e[0m"
+echo -e "\e[36m$ sudo openvpn --config $OVPN_CONF\e[0m"   
