@@ -1,0 +1,5 @@
+*.ovpn
+*.conf
+*.json
+*.jar
+!proton-sample.ovpn

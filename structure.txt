@@ -1,0 +1,6 @@
+main.sh
+lib/
+  auth.sh          # create_session(), get_credentialless_token()
+  vpn_api.sh       # fetch_servers(), fetch_vpn_credentials()
+  wireguard.sh     # get_keypair(), register_certificate()
+  configs.sh       # write_openvpn_config(), write_wireguard_config()
