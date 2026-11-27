@@ -21,6 +21,6 @@ run "connect openvpn"    ./main.sh -p openvpn --connect
 run "connect wireguard"  ./main.sh -p wireguard --connect
 run "gen+connect openvpn"    ./main.sh -p openvpn --connect --gen
 run "gen+connect wireguard"  ./main.sh -p wireguard --connect --gen
-#run "gen random wireguard" ./main.sh -p wireguard -r 
+run "gen random wireguard" ./main.sh -p wireguard -r 
 echo "Passed: $PASS  Failed: $FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
