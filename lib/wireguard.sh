@@ -96,6 +96,7 @@ EOF
 
 generate_all_wireguard_configs() {
   mkdir -p proton-wg
+  local cutoff=$(date -u -d "7 days ago" +"%Y-%m-%dT%H:%M:%SZ")
 
   while IFS= read -r selected_server; do
     selected=$selected_server
@@ -105,10 +106,21 @@ generate_all_wireguard_configs() {
     server_pub=$(jq -r '.Servers[0].X25519PublicKey' <<< "$selected")
     server_load=$(jq -r '.Load' <<< "$selected")
 
+    local safe_name="${server_name//#/-}"
+    local existing="proton-wg/${safe_name}-wg.conf"
+
+    if [[ -f "$existing" ]]; then
+      local created=$(grep "^# Created:" "$existing" | awk '{print $3}')
+      if [[ "$created" > "$cutoff" ]]; then
+        echo "SKIP $server_name (created $created, still valid)"
+        continue
+      fi
+      echo "REGEN $server_name (created $created, expired)"
+    fi
+
     get_keypair || { echo "SKIP $server_name (keypair 429)"; sleep 5; continue; }
     register_certificate || { echo "SKIP $server_name (cert 429)"; sleep 5; continue; }
     generate_wireguard_config
     sleep 3
   done < <(jq -c '.[]' <<< "$selected")
-}    
-
+}
