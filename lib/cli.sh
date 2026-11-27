@@ -71,9 +71,9 @@ parse_args() {
 
   if [[ -z "$output_file" ]]; then
     if [[ "$protocol" == openvpn ]]; then
-      output_file="vpn.ovpn"
+      output_file="proton.ovpn"
     else
-      output_file="vpn.conf"
+      output_file="proton-wg.conf"
     fi
   fi
 
