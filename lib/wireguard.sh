@@ -67,14 +67,15 @@ print(base64.b64encode(bytes(h)).decode())
 }
 
 generate_wireguard_config() {
-  
-  WG_CONF="proton-wg/${server_name}-wg.conf"
+  local safe_name="${server_name//#/-}"
+  WG_CONF="proton-wg/${safe_name}-wg.conf"
   mkdir -p "$(dirname "$WG_CONF")"
   cat > "$WG_CONF" <<EOF
 # Name: $server_name
 # City: $server_city
 # Load: $server_load
 # IP: $server_ip
+# Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 [Interface]
 PrivateKey = $wg_priv
