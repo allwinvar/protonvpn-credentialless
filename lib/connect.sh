@@ -17,21 +17,22 @@ connect_openvpn(){
 }
 
 connect_wireguard(){
-    # Extract endpoint from config
     WG_SERVER=$(grep -oP 'Endpoint = \K[0-9.]+' "$WG_CONF")
     WG_PORT=$(grep -oP 'Endpoint = [0-9.]+:\K[0-9]+' "$WG_CONF")
-	
-	
-	WG_IFACE=$(basename "$WG_CONF" .conf)
-    #sudo ufw allow in on "$WG_IFACE"
+    WG_IFACE=$(basename "$WG_CONF" .conf)
+
     sudo ufw allow out on "$WG_IFACE"
     sudo ufw allow out to "$WG_SERVER" port "$WG_PORT" proto udp
-    echo "wg server $WG_SERVER port $WG_PORT"
+    # fwmark rule (the actual fix)
+    sudo nft add table ip filter 2>/dev/null || true
+    sudo nft add chain ip filter output '{ type filter hook output priority -1 ; }' 2>/dev/null || true
+    sudo nft add rule ip filter output meta mark 0xca6c accept 2>/dev/null || true
 
+    echo "wg server $WG_SERVER port $WG_PORT"
     sudo wg-quick up "./$WG_CONF"
-    
-    
 }   
+
+  
 connect_random_wireguard() {
   local conf
   conf=$(find proton-wg -maxdepth 1 -type f -name '*.conf' -print 2>/dev/null | shuf -n1)
