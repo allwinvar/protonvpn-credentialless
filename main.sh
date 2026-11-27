@@ -20,8 +20,8 @@ if (( CONNECT && GEN )); then
     VERB="${VERB:-1}"
     run_flow "$protocol"
 elif (( CONNECT )); then
-    OVPN_CONF="${OVPN_CONF:-vpn.ovpn}"
-    WG_CONF="${WG_CONF:-vpn.conf}"
+    OVPN_CONF="$output_file"
+    WG_CONF="$output_file"
 else
     check_requirements "$protocol"
     WG_CONF="$output_file"
