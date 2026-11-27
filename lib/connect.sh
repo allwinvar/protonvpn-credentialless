@@ -12,7 +12,7 @@ connect_openvpn(){
 	sudo ufw allow out to "$SERVER_IP" port "$PORT" proto tcp
 	echo "server ip $SERVER_IP port $PORT"
 
-	sudo ufw allow in on tun0
+	#sudo ufw allow in on tun0
 	sudo ufw allow out on tun0
 }
 
@@ -24,7 +24,9 @@ connect_wireguard(){
     sudo ufw allow out to "$WG_SERVER" port "$WG_PORT" proto udp
     echo "wg server $WG_SERVER port $WG_PORT"
 
-    sudo wg-quick up "$WG_CONF"
-    sudo ufw allow in on wg0
-    sudo ufw allow out on wg0
+    sudo wg-quick up "./$WG_CONF"
+    
+    WG_IFACE=$(basename "$WG_CONF" .conf)
+    #sudo ufw allow in on "$WG_IFACE"
+    sudo ufw allow out on "$WG_IFACE"
 }   
