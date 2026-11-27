@@ -38,13 +38,19 @@ run_flow() {
 
   # C6
   if [[ "$protocol" == wireguard ]]; then
-    echo "[6/6] Registering certificate..."
-    register_certificate
-    generate_wireguard_config
+    if (( ${ALL_SERVERS:-0} )); then
+      echo "[6/6] Generating WireGuard configs for all servers..."
+      generate_all_wireguard_configs
+    else
+      echo "[6/6] Registering certificate..."
+      register_certificate
+      generate_wireguard_config
+    fi
   else
     echo "[6/6] Generating OpenVPN config..."
     generate_ovpn
   fi
+
 }
 
  

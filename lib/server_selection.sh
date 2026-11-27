@@ -1,4 +1,15 @@
 select_server() {
+	if (( ${ALL_SERVERS:-0} )); then
+	selected=$(jq -c '.' <<< "$logical_servers_response")
+	
+	if [[ -z "$selected" || "$selected" == "[]" || "$selected" == "null" ]]; then
+		echo "No servers available" >&2
+		exit 1
+	fi
+	
+	echo "Selected all servers"
+	return 0
+	fi
   if (( RANDOM_SERVER )); then
     local count=$(echo "$logical_servers_response" | jq 'length')
 	local idx=$((RANDOM % count))
