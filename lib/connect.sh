@@ -30,26 +30,36 @@ connect_wireguard(){
     #sudo ufw allow in on "$WG_IFACE"
     sudo ufw allow out on "$WG_IFACE"
 }   
-
 connect_random_wireguard() {
   local conf
-  conf=$(ls proton-wg/*.conf 2>/dev/null | shuf -n1)
+  conf=$(find proton-wg -maxdepth 1 -type f -name '*.conf' -print 2>/dev/null | shuf -n1)
+
   if [[ -z "$conf" ]]; then
     echo "No configs in proton-wg/" >&2
-    exit 1
+    return 1
   fi
 
-  # Extract endpoint (same as connect_wireguard)
-  local wg_server=$(grep -oP 'Endpoint = \K[0-9.]+' "$conf")
-  local wg_port=$(grep -oP 'Endpoint = [0-9.]+:\K[0-9]+' "$conf")
-  
-  sudo ufw allow out on "$wg_iface"
-  sudo ufw allow out to "$wg_server" port "$wg_port" proto udp
-  echo "wg server $wg_server port $wg_port"
+  local wg_server
+  local wg_port
+  local wg_iface
+
+  wg_server=$(grep -oP 'Endpoint = \K[0-9.]+' "$conf")
+  wg_port=$(grep -oP 'Endpoint = [0-9.]+:\K[0-9]+' "$conf")
+  wg_iface=$(basename "$conf" .conf)
+
+  if [[ -z "$wg_server" || -z "$wg_port" ]]; then
+    echo "Could not read WireGuard endpoint from $conf" >&2
+    return 1
+  fi
 
   echo "Connecting to: $conf"
-  sudo wg-quick up "$conf"
+  echo "WireGuard endpoint: $wg_server:$wg_port"
+  echo "WireGuard interface: $wg_iface"
 
-  local wg_iface=$(basename "$conf" .conf)
-  
-} 
+  sudo ufw allow out on "$wg_iface"
+  sudo ufw allow out to "$wg_server" port "$wg_port" proto udp
+
+  sudo wg-quick up "$conf"
+}
+
+
