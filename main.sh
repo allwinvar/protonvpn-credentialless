@@ -31,9 +31,13 @@ else
 fi
 
 if (( CONNECT )); then
-    if [[ "$protocol" == openvpn ]]; then
-        connect_openvpn
-    else
-        connect_wireguard
+  if (( RANDOM_SERVER )); then
+    if [[ "$protocol" == wireguard ]]; then
+      connect_random_wireguard
     fi
+  elif [[ "$protocol" == openvpn ]]; then
+    connect_openvpn
+  else
+    connect_wireguard
+  fi
 fi   
