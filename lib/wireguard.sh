@@ -67,7 +67,14 @@ print(base64.b64encode(bytes(h)).decode())
 
 
 generate_wireguard_config() {
+  WG_CONF="proton-wg/${server_name}-wg.conf"
+
   cat > "$WG_CONF" <<EOF
+# Name: $server_name
+# City: $server_city
+# Load: $server_load
+# IP: $server_ip
+
 [Interface]
 PrivateKey = $wg_priv
 Address = 10.2.0.2/32
@@ -80,8 +87,9 @@ Endpoint = $server_ip:51820
 PersistentKeepalive = 25
 EOF
 
-  echo "WireGuard conf was created with success!"
+  echo "WireGuard conf saved to $WG_CONF"
   echo -e "\e[36m\$ sudo wg-quick up $WG_CONF\e[0m"
   echo -e "\e[36m\$ sudo wg-quick down $WG_CONF\e[0m"
-}   
+}
+  
 }
