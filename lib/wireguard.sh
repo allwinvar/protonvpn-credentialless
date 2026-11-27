@@ -64,11 +64,12 @@ h[31] &= 0x7f
 h[31] |= 0x40
 print(base64.b64encode(bytes(h)).decode())
 ")   
-
+}
 
 generate_wireguard_config() {
+  
   WG_CONF="proton-wg/${server_name}-wg.conf"
-
+  mkdir -p "$(dirname "$WG_CONF")"
   cat > "$WG_CONF" <<EOF
 # Name: $server_name
 # City: $server_city
@@ -91,5 +92,23 @@ EOF
   echo -e "\e[36m\$ sudo wg-quick up $WG_CONF\e[0m"
   echo -e "\e[36m\$ sudo wg-quick down $WG_CONF\e[0m"
 }
-  
+
+
+generate_all_wireguard_configs() {
+  mkdir -p proton-wg
+
+  while IFS= read -r selected_server; do
+    selected=$selected_server
+    server_name=$(jq -r '.Name' <<< "$selected")
+    server_city=$(jq -r '.City' <<< "$selected")
+    server_ip=$(jq -r '.Servers[0].EntryIP' <<< "$selected")
+    server_pub=$(jq -r '.Servers[0].X25519PublicKey' <<< "$selected")
+    server_load=$(jq -r '.Load' <<< "$selected")
+    WG_CONF="proton-wg/${server_name}-wg.conf"
+
+    register_certificate
+    generate_wireguard_config
+  done < <(jq -c '.[]' <<< "$selected")
 }
+  
+
