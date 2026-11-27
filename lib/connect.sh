@@ -42,7 +42,8 @@ connect_random_wireguard() {
   # Extract endpoint (same as connect_wireguard)
   local wg_server=$(grep -oP 'Endpoint = \K[0-9.]+' "$conf")
   local wg_port=$(grep -oP 'Endpoint = [0-9.]+:\K[0-9]+' "$conf")
-
+  
+  sudo ufw allow out on "$wg_iface"
   sudo ufw allow out to "$wg_server" port "$wg_port" proto udp
   echo "wg server $wg_server port $wg_port"
 
@@ -50,5 +51,5 @@ connect_random_wireguard() {
   sudo wg-quick up "$conf"
 
   local wg_iface=$(basename "$conf" .conf)
-  sudo ufw allow out on "$wg_iface"
+  
 } 
