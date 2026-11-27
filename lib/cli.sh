@@ -7,6 +7,7 @@ parse_args() {
   RANDOM_SERVER=0
   CONNECT=0
   GEN=0
+  ALL_SERVERS=0
 
   while (($#)); do
     case "$1" in
@@ -43,6 +44,10 @@ parse_args() {
         ;;
       --gen)
         GEN=1
+        shift
+        ;;
+      --all-servers)
+        ALL_SERVERS=1
         shift
         ;;
       -h|--help)
