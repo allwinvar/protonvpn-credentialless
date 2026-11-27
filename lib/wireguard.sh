@@ -94,9 +94,15 @@ EOF
   echo -e "\e[36m\$ sudo wg-quick down $WG_CONF\e[0m"
 }
 
-
 generate_all_wireguard_configs() {
   mkdir -p proton-wg
+
+  # Set values for the first server so register_certificate works
+  local first_server=$(jq -c '.[0]' <<< "$selected")
+  server_name=$(jq -r '.Name' <<< "$first_server")
+  server_city=$(jq -r '.City' <<< "$first_server")
+  server_ip=$(jq -r '.Servers[0].EntryIP' <<< "$first_server")
+  server_pub=$(jq -r '.Servers[0].X25519PublicKey' <<< "$first_server")
 
   register_certificate
 
@@ -111,5 +117,4 @@ generate_all_wireguard_configs() {
     generate_wireguard_config
   done < <(jq -c '.[]' <<< "$selected")
 }   
-  
 
