@@ -20,15 +20,17 @@ connect_wireguard(){
     # Extract endpoint from config
     WG_SERVER=$(grep -oP 'Endpoint = \K[0-9.]+' "$WG_CONF")
     WG_PORT=$(grep -oP 'Endpoint = [0-9.]+:\K[0-9]+' "$WG_CONF")
-
+	
+	
+	WG_IFACE=$(basename "$WG_CONF" .conf)
+    #sudo ufw allow in on "$WG_IFACE"
+    sudo ufw allow out on "$WG_IFACE"
     sudo ufw allow out to "$WG_SERVER" port "$WG_PORT" proto udp
     echo "wg server $WG_SERVER port $WG_PORT"
 
     sudo wg-quick up "./$WG_CONF"
     
-    WG_IFACE=$(basename "$WG_CONF" .conf)
-    #sudo ufw allow in on "$WG_IFACE"
-    sudo ufw allow out on "$WG_IFACE"
+    
 }   
 connect_random_wireguard() {
   local conf
