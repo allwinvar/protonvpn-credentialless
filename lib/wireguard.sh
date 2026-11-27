@@ -98,6 +98,8 @@ EOF
 generate_all_wireguard_configs() {
   mkdir -p proton-wg
 
+  register_certificate
+
   while IFS= read -r selected_server; do
     selected=$selected_server
     server_name=$(jq -r '.Name' <<< "$selected")
@@ -105,11 +107,9 @@ generate_all_wireguard_configs() {
     server_ip=$(jq -r '.Servers[0].EntryIP' <<< "$selected")
     server_pub=$(jq -r '.Servers[0].X25519PublicKey' <<< "$selected")
     server_load=$(jq -r '.Load' <<< "$selected")
-    WG_CONF="proton-wg/${server_name}-wg.conf"
 
-    register_certificate
     generate_wireguard_config
   done < <(jq -c '.[]' <<< "$selected")
-}
+}   
   
 
