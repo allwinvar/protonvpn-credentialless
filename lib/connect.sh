@@ -61,6 +61,12 @@ connect_random_wireguard() {
 
   sudo ufw allow out on "$wg_iface"
   sudo ufw allow out to "$wg_server" port "$wg_port" proto udp
+	
+  
+  sudo nft add table ip filter 2>/dev/null || true
+  sudo nft add chain ip filter output '{ type filter hook output priority -1 ; }' 2>/dev/null || true
+  sudo nft add rule ip filter output meta mark 0xca6c accept 2>/dev/null || true
+
 
   sudo wg-quick up "$conf"
 }
