@@ -16,7 +16,7 @@ get_keypair(){
 	-H "x-pm-apiversion: 4" \
 	-H "Accept: application/vnd.protonmail.v1+json" \
 	"https://vpn-api.proton.me/vpn/v1/certificate/key/EC"
-	)
+	)|| return 1
 	
 	# Extract full base64 (strip PEM headers, join all lines)
 	ec_pub_b64=$(echo "$key_response" | jq -r '.PublicKey' | grep -v -- '-----' | tr -d '\r\n')
@@ -50,7 +50,7 @@ register_certificate(){
     }
   }" \
   "https://vpn-api.proton.me/vpn/v1/certificate"
-	)
+	)|| return 1
 	
 	
 	
@@ -105,9 +105,10 @@ generate_all_wireguard_configs() {
     server_pub=$(jq -r '.Servers[0].X25519PublicKey' <<< "$selected")
     server_load=$(jq -r '.Load' <<< "$selected")
 
-    get_keypair
-    register_certificate
+    get_keypair || { echo "SKIP $server_name (keypair 429)"; sleep 5; continue; }
+    register_certificate || { echo "SKIP $server_name (cert 429)"; sleep 5; continue; }
     generate_wireguard_config
+    sleep 3
   done < <(jq -c '.[]' <<< "$selected")
 }    
 
